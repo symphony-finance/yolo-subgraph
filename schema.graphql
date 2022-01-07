@@ -1,0 +1,76 @@
+enum Status {
+  ACTIVE
+  EXECUTED
+  CANCELLED
+}
+
+type Order @entity {
+  id: ID!
+  orderId: Bytes!
+  creator: User!
+  recipient: Bytes!
+  inputToken: Bytes!
+  outputToken: Bytes!
+  inputAmount: BigInt!
+  minReturnAmount: BigInt!
+  stoplossAmount: BigInt!
+  shares: BigInt!
+  executor: Executor
+  orderEncodedData: Bytes!
+  status: Status!
+  createdAtBlock: BigInt!
+  createdTxHash: Bytes
+  executedAtBlock: BigInt
+  executedTxHash: Bytes
+  cancelledTxHash: Bytes
+  updatedAt: BigInt
+  yieldEarned: BigInt
+  returnAmount: BigInt
+}
+
+type User @entity {
+  id: ID!
+  address: Bytes!
+  orders: [Order!] @derivedFrom(field: "creator")
+}
+
+type Executor @entity {
+  id: ID!
+  address: Bytes!
+  filledOrders: [Order!] @derivedFrom(field: "executor")
+}
+
+type TokenDetail @entity {
+  id: ID!
+  address: Bytes!
+  strategy: Bytes
+  totalFunds: BigInt!
+  totalShares: BigInt!
+  bufferPercent: BigInt
+  isWhitelistToken: Boolean!
+}
+
+type State @entity {
+  id: ID!
+  baseFeePercent: BigDecimal
+  protocolFeePercent: BigDecimal
+  executorFeePercent: BigDecimal
+  cancellationFeePercent: BigDecimal
+  handlers: [Handler!] @derivedFrom(field: "state")
+  lastRebalanceTime: BigInt!
+}
+
+type Handler @entity {
+  id: ID!
+  name: String
+  address: Bytes!
+  state: State!
+}
+
+type Rebalance @entity {
+  id: ID!
+  txCost: BigDecimal!
+  rebalancedBy: Bytes!
+  timestamp: BigInt!
+  txHash: Bytes
+}
