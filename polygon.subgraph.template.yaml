@@ -34,8 +34,6 @@ dataSources:
           handler: handleAddedWhitelistToken
         - event: RemovedWhitelistToken(address)
           handler: handleRemovedWhitelistToken
-        - event: BaseFeeUpdated(uint256)
-          handler: handleBaseFeeUpdated
         - event: ProtocolFeeUpdated(uint256)
           handler: handleProtocolFeeUpdated
         - event: CancellationFeeUpdated(uint256)

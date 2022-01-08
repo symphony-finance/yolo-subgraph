@@ -7,7 +7,6 @@ import {
 } from "@graphprotocol/graph-ts";
 import {
     User,
-    State,
     Executor,
     TokenDetail,
 } from "../../generated/schema";
@@ -16,7 +15,6 @@ import {
     BIGINT_TEN,
     BIGINT_ZERO,
     ACTION_CREATED,
-    BIGDECIMAL_ZERO,
 } from "./constants";
 
 export class Order {
@@ -29,6 +27,7 @@ export class Order {
     stoplossAmount: BigInt;
     shares: BigInt;
     executor: Address;
+    executionFee: BigInt;
 }
 
 export function createUser(
@@ -128,19 +127,9 @@ export function calculateYield(
     }
 }
 
-export function calcReturnAmount(totalAmountOut: BigInt): BigDecimal {
-    let state = State.load(stateId);
-    if (state) {
-        let amount = totalAmountOut.toBigDecimal()
-        return amount.minus(amount.times(state.baseFeePercent as BigDecimal));
-    } else {
-        return BIGDECIMAL_ZERO;
-    }
-}
-
 export function decodeOrder(encoded: Bytes): Order {
     const decoded = (ethereum.decode(
-        '(address,address,address,address,uint256,uint256,uint256,uint256,address,)',
+        '(address,address,address,address,uint256,uint256,uint256,uint256,address,uint256)',
         encoded
     ) as ethereum.Value).toTuple();
 
@@ -154,5 +143,6 @@ export function decodeOrder(encoded: Bytes): Order {
         stoplossAmount: decoded[6].toBigInt(),
         shares: decoded[7].toBigInt(),
         executor: decoded[8].toAddress(),
+        executionFee: decoded[9].toBigInt(),
     }
 }

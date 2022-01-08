@@ -26,6 +26,7 @@ type Order @entity {
   updatedAt: BigInt
   yieldEarned: BigInt
   returnAmount: BigInt
+  executionFee: BigInt!
 }
 
 type User @entity {
@@ -52,9 +53,7 @@ type TokenDetail @entity {
 
 type State @entity {
   id: ID!
-  baseFeePercent: BigDecimal
   protocolFeePercent: BigDecimal
-  executorFeePercent: BigDecimal
   cancellationFeePercent: BigDecimal
   handlers: [Handler!] @derivedFrom(field: "state")
   lastRebalanceTime: BigInt!

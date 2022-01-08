@@ -3,7 +3,6 @@ import {
   Bytes,
   BigInt,
   BigDecimal,
-  log,
 } from '@graphprotocol/graph-ts';
 import {
   State,
@@ -32,7 +31,6 @@ import {
   OrderCancelled,
   AddedWhitelistToken,
   RemovedWhitelistToken,
-  BaseFeeUpdated,
   ProtocolFeeUpdated,
   CancellationFeeUpdated,
   HandlerAdded,
@@ -48,7 +46,6 @@ import {
   calculateYield,
   createTokenEntity,
   updateTotalTokens,
-  calcReturnAmount,
 } from './utils/helpers';
 
 export function handleOrderCreated(
@@ -69,6 +66,7 @@ export function handleOrderCreated(
   order.minReturnAmount = decodedOrder.minReturnAmount;
   order.stoplossAmount = decodedOrder.stoplossAmount;
   order.shares = decodedOrder.shares;
+  order.executionFee = decodedOrder.executionFee;
   order.createdAtBlock = event.block.number;
   order.orderEncodedData = event.params.data;
   order.createdTxHash = event.transaction.hash;
@@ -169,6 +167,7 @@ export function handleOrderUpdated(
     newOrder.minReturnAmount = decodedOrder.minReturnAmount;
     newOrder.stoplossAmount = decodedOrder.stoplossAmount;
     newOrder.shares = decodedOrder.shares;
+    newOrder.executionFee = decodedOrder.executionFee;
     newOrder.orderEncodedData = orderData;
     newOrder.createdAtBlock = oldOrder.createdAtBlock;
     newOrder.createdTxHash = oldOrder.createdTxHash;
@@ -202,20 +201,6 @@ export function handleTokenStrategyUpdated(
   }
 }
 
-export function handleBaseFeeUpdated(
-  event: BaseFeeUpdated
-): void {
-  let state = State.load(stateId);
-  if (!state) {
-    state = new State(stateId);
-    state.lastRebalanceTime = BIGINT_ZERO;
-  }
-
-  state.baseFeePercent = event.params.feePercent
-    .divDecimal(PERCENTAGE_FACTOR_DECIMAL);
-  state.save();
-}
-
 export function handleProtocolFeeUpdated(
   event: ProtocolFeeUpdated
 ): void {
@@ -225,16 +210,9 @@ export function handleProtocolFeeUpdated(
     state.lastRebalanceTime = BIGINT_ZERO;
   }
 
-  if (state) {
-    state.protocolFeePercent = event.params.feePercent
-      .divDecimal(PERCENTAGE_FACTOR_DECIMAL)
-      .times(state.baseFeePercent as BigDecimal)
-      .div(PERCENTAGE_FACTOR_DECIMAL);
-    state.executorFeePercent = (
-      state.baseFeePercent as BigDecimal
-    ).minus(state.protocolFeePercent as BigDecimal);
-    state.save();
-  }
+  state.protocolFeePercent = event.params.feePercent
+    .divDecimal(PERCENTAGE_FACTOR_DECIMAL);
+  state.save();
 }
 
 export function handleCancellationFeeUpdated(
