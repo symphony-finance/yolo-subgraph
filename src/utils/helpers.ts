@@ -7,16 +7,16 @@ import {
 } from "@graphprotocol/graph-ts";
 import {
     User,
-    State,
     Executor,
     TokenDetail,
+    State,
 } from "../../generated/schema";
 import {
     stateId,
-    BIGINT_TEN,
     BIGINT_ZERO,
     ACTION_CREATED,
     BIGDECIMAL_ZERO,
+    PERCENTAGE_FACTOR_DECIMAL,
 } from "./constants";
 
 export class Order {
@@ -29,6 +29,7 @@ export class Order {
     stoplossAmount: BigInt;
     shares: BigInt;
     executor: Address;
+    executionFee: BigInt;
 }
 
 export function createUser(
@@ -57,15 +58,6 @@ export function createExecutor(
         executor.address = executorAddress;
         executor.save();
     }
-};
-
-export function getAmountWithoutDecimals(
-    amount: BigInt,
-    decimals: i32,
-): BigDecimal {
-    return amount.divDecimal((
-        BIGINT_TEN.pow(<u8>(decimals))
-    ).toBigDecimal());
 };
 
 export function createTokenEntity(
@@ -128,19 +120,9 @@ export function calculateYield(
     }
 }
 
-export function calcReturnAmount(totalAmountOut: BigInt): BigDecimal {
-    let state = State.load(stateId);
-    if (state) {
-        let amount = totalAmountOut.toBigDecimal()
-        return amount.minus(amount.times(state.baseFeePercent as BigDecimal));
-    } else {
-        return BIGDECIMAL_ZERO;
-    }
-}
-
 export function decodeOrder(encoded: Bytes): Order {
     const decoded = (ethereum.decode(
-        '(address,address,address,address,uint256,uint256,uint256,uint256,address,)',
+        '(address,address,address,address,uint256,uint256,uint256,uint256,address,uint256)',
         encoded
     ) as ethereum.Value).toTuple();
 
@@ -154,5 +136,26 @@ export function decodeOrder(encoded: Bytes): Order {
         stoplossAmount: decoded[6].toBigInt(),
         shares: decoded[7].toBigInt(),
         executor: decoded[8].toAddress(),
+        executionFee: decoded[9].toBigInt(),
+    }
+}
+
+export function calcInputAfterFee(order: Order): BigDecimal {
+    let state = State.load(stateId);
+    if (state) {
+        const protocolFeePercent = state.protocolFeePercent;
+        const inputAmt = new BigDecimal(order.inputAmount);
+        const executionFee = new BigDecimal(order.executionFee);
+
+        const protocolFee = protocolFeePercent ?
+            protocolFeePercent.
+                div(PERCENTAGE_FACTOR_DECIMAL)
+                .times(inputAmt).truncate(0) : BIGDECIMAL_ZERO;
+        const totalFee = executionFee.plus(protocolFee);
+        const inputAfterFee = inputAmt.minus(totalFee);
+
+        return inputAfterFee;
+    } else {
+        return BIGDECIMAL_ZERO;
     }
 }
