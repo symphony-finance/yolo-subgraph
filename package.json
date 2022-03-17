@@ -10,7 +10,7 @@
     "subgraph:deploy": "graph deploy $SLUG --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token $ACCESS_TOKEN",
     "deploy:polygon": "BLOCKCHAIN=polygon NETWORK=matic env-cmd npm run prepare && SLUG=symphony-finance/yolo-polygon npm run subgraph:deploy",
     "deploy:mumbai": "BLOCKCHAIN=polygon NETWORK=mumbai env-cmd npm run prepare && SLUG=symphony-finance/symphony-mumbai npm run subgraph:deploy",
-    "deploy:avalanche": "BLOCKCHAIN=avalanche NETWORK=avalanche env-cmd npm run prepare && SLUG=symphony-finance/symphony-avalanche npm run subgraph:deploy",
+    "deploy:avalanche": "BLOCKCHAIN=avalanche NETWORK=avalanche env-cmd npm run prepare && SLUG=symphony-finance/yolo-avalanche npm run subgraph:deploy",
     "deploy:fuji": "BLOCKCHAIN=avalanche NETWORK=fuji env-cmd npm run prepare && SLUG=symphony-finance/symphony-fuji npm run subgraph:deploy"
   },
   "devDependencies": {
