@@ -78,7 +78,7 @@ export function handleOrderCreated(
   order.inputAfterFee = calcInputAfterFee(decodedOrder);
   order.save();
 
-  createUser(decodedOrder.recipient);
+  createUser(decodedOrder.creator);
   createTokenEntity(decodedOrder.inputToken);
   createTokenEntity(decodedOrder.outputToken);
   updateTotalTokens(
