@@ -30,6 +30,7 @@ type Order @entity {
   limitPrice: BigDecimal
   stoplossPrice: BigDecimal
   inputAfterFee: BigDecimal
+  timestamp: BigInt!
 }
 
 type User @entity {

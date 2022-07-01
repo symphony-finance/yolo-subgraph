@@ -69,6 +69,7 @@ export function handleOrderCreated(
   order.shares = decodedOrder.shares;
   order.executionFee = decodedOrder.executionFee;
   order.createdAtBlock = event.block.number;
+  order.timestamp = event.block.timestamp;
   order.orderEncodedData = event.params.data;
   order.createdTxHash = event.transaction.hash;
   if (decodedOrder.executor.toHexString() != ZERO_ADDRESS) {

@@ -1,0 +1,48 @@
+specVersion: 0.0.2
+description: Symphony Finance's Yolo Subgraph
+repository: https://github.com/symphony-finance/yolo-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Yolo
+    network: {{network}}
+    source:
+      address: '{{YoloAddress}}'
+      abi: Yolo
+      startBlock: {{YoloStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Pool
+      abis:
+        - name: Yolo
+          file: ./abis/Yolo.json
+      eventHandlers:
+        - event: OrderCancelled(bytes32,uint256)
+          handler: handleOrderCancelled
+        - event: OrderCreated(bytes32,bytes)
+          handler: handleOrderCreated
+        - event: OrderExecuted(bytes32,uint256,uint256)
+          handler: handleOrderExecuted
+        - event: OrderUpdated(bytes32,bytes32,bytes)
+          handler: handleOrderUpdated
+        - event: AddedWhitelistToken(address)
+          handler: handleAddedWhitelistToken
+        - event: RemovedWhitelistToken(address)
+          handler: handleRemovedWhitelistToken
+        - event: ProtocolFeeUpdated(uint256)
+          handler: handleProtocolFeeUpdated
+        - event: CancellationFeeUpdated(uint256)
+          handler: handleCancellationFeeUpdated
+        - event: HandlerAdded(address)
+          handler: handleHandlerAdded
+        - event: HandlerRemoved(address)
+          handler: handleHandlerRemoved
+        - event: TokenBufferUpdated(address,uint256)
+          handler: handleTokenBufferUpdated
+        - event: TokenStrategyUpdated(address,address)
+          handler: handleTokenStrategyUpdated
