@@ -174,6 +174,7 @@ export function handleOrderUpdated(
     newOrder.orderEncodedData = orderData;
     newOrder.createdAtBlock = oldOrder.createdAtBlock;
     newOrder.createdTxHash = oldOrder.createdTxHash;
+    newOrder.timestamp = oldOrder.timestamp;
     newOrder.executor = decodedOrder.executor.toHexString();
     if (decodedOrder.executor.toHexString() != oldOrder.executor) {
       createExecutor(
